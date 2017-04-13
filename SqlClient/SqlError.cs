@@ -46,7 +46,7 @@ namespace Rsqldrv.SqlClient
 
         public int LineNumber { get { return (int)this._lineNo; } } // N/A
 
-        public string Message { get { return this._text; } }
+        public string Message { get { return String.Format("{0}:{1} {2} (state={3})", this._lineNo, this._linePos, this._text, this._state); } }
 
         public int Number { get { return -1; } } // N/A
 

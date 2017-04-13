@@ -56,6 +56,9 @@ namespace Rsqldrv.SqlClient
                                 throw new DriverException(String.Format("Connection string: invalid port \"{0}\" value.", addrPort[1]));
                         }
 
+                        if (serverAddr.Trim() == "(local)")
+                            serverAddr = "127.0.0.1";
+
                         this.serverAddr = serverAddr;
                         this.serverPort = serverPort;
                         break;
@@ -71,7 +74,7 @@ namespace Rsqldrv.SqlClient
                         break;
 
                     case "database":
-                    case "inital catalog":
+                    case "initial catalog":
                         this.database = val.ToLower();
                         break;
 

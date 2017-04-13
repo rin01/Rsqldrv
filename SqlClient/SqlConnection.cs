@@ -164,26 +164,7 @@ namespace Rsqldrv.SqlClient
 
             if (disposing)
             {
-                this._connString = "";
-
-                if (this._tcpClient != null)
-                {
-                    this._tcpClient.Dispose(); // TcpClient.Close() just calls TcpClient.Dispose(). TcpClient.Dispose() closes the internal socket too.
-                    this._tcpClient = null;
-                }
-                this._socket = null;
-
-                this._sendLock = null;
-                this._buffout = null;
-                this._buffin = null;
-                this._state = ConnectionState.Broken;
-
-                if (this._timer != null)
-                {
-                    this._timer.Stop();
-                    this._timer.Close(); // Close() calls Dispose()
-                    this._timer = null;
-                }
+                this.Close(); // Close does the real job
             }
 
             base.Dispose(disposing); // dispose DBConnection and Component
@@ -192,7 +173,29 @@ namespace Rsqldrv.SqlClient
 
         public override void Close() // Microsoft docs says that Close and Dispose are functionally equivalent
         {
-            this.Dispose();
+            if (this._disposed)
+                return;
+
+            this._connString = "";
+
+            if (this._tcpClient != null)
+            {
+                this._tcpClient.Dispose(); // TcpClient.Close() just calls TcpClient.Dispose(). TcpClient.Dispose() closes the internal socket too.
+                this._tcpClient = null;
+            }
+            this._socket = null;
+
+            this._sendLock = null;
+            this._buffout = null;
+            this._buffin = null;
+            this._state = ConnectionState.Broken;
+
+            if (this._timer != null)
+            {
+                this._timer.Stop();
+                this._timer.Close(); // Close() calls Dispose()
+                this._timer = null;
+            }
         }
 
         //===== helper methods =====

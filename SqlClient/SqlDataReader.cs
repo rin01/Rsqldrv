@@ -20,6 +20,7 @@ namespace Rsqldrv.SqlClient
     {        
         private string _text = "";
         private SqlConnection _conn; // if conn is null, the SqlDataReader is considered as closed
+        private CommandBehavior _commandBehavior = CommandBehavior.Default;
 
         private byte _status;
         private string[] _colnameList; // list of column name in lowercase
@@ -41,10 +42,11 @@ namespace Rsqldrv.SqlClient
 
         //===== constructor =====
 
-        internal SqlDataReader(string sqlText, SqlConnection conn)
+        internal SqlDataReader(string sqlText, SqlConnection conn, CommandBehavior behavior)
         {
             this._text = sqlText;
             this._conn = conn;
+            this._commandBehavior = behavior;
         }
 
         //===== preoperties =====
@@ -244,6 +246,12 @@ namespace Rsqldrv.SqlClient
 
                         if (this._sqlException != null) // if server error detected, throw it
                             throw this._sqlException;
+
+                        if (this._commandBehavior == CommandBehavior.CloseConnection)
+                        {
+                            this._conn.Dispose();
+                            this._conn = null;
+                        }
 
                         return false;
 

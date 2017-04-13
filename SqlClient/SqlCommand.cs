@@ -113,24 +113,26 @@ namespace Rsqldrv.SqlClient
         // Return cumulative number of inserted/updated/deleted records for all INSERT/UPDATE/DELETE statements in the batch.
         public override int ExecuteNonQuery()
         {
+            int result = 0;
             SqlDataReader reader = null;
             string finalText = this.Parameters.GetAllDECLAREstring() + this._text;
 
             try
             {
-                reader = new SqlDataReader(finalText, this._conn);
+                reader = new SqlDataReader(finalText, this._conn, CommandBehavior.Default);
                 reader.SendAndExecuteBatch(StepOption.STEP_EXECUTE_ALL);
             }
             finally
             {
                 if (reader != null)
                 {
+                    result = (int)reader.CumulativeExecRecordCount; // available even after reader.Dispose()
                     reader.Dispose();
                     reader = null;
                 }
             }
 
-            return (int)reader.CumulativeExecRecordCount; // available even after reader.Dispose()
+            return result;
         }
 
         // Execute the whole batch and return the value of first column in first record.
@@ -138,32 +140,42 @@ namespace Rsqldrv.SqlClient
         //       But Rsql raises an Exception if the server returns an error.
         public override object ExecuteScalar()
         {
+            object scalar = null;
             SqlDataReader reader = null;
             string finalText = this.Parameters.GetAllDECLAREstring() + this._text;
 
             try
             {
-                reader = new SqlDataReader(finalText, this._conn);
+                reader = new SqlDataReader(finalText, this._conn, CommandBehavior.Default);
                 reader.SendAndExecuteBatch(StepOption.STEP_EXECUTE_ALL);
             }
             finally
             {
                 if (reader != null)
                 {
+                    scalar = reader.FirstScalar; // available even after reader.Dispose()
                     reader.Dispose();
                     reader = null;
                 }
             }
 
-            return reader.FirstScalar; // available even after reader.Dispose()
+            return scalar;
         }
 
         public new SqlDataReader ExecuteReader()
         {
+            return this.ExecuteReader(CommandBehavior.Default);
+        }
+
+        public new SqlDataReader ExecuteReader(CommandBehavior behavior)
+        {
+            if (behavior != CommandBehavior.CloseConnection && behavior != CommandBehavior.Default)
+                throw new DriverException("SqlCommand: only argument CommandBehavior.CloseConnection or CommandBehavior.Default can be passed to ExecuteReader() method.");
+
             SqlDataReader reader = null;
             string finalText = this.Parameters.GetAllDECLAREstring() + this._text;
 
-            reader = new SqlDataReader(finalText, this._conn);
+            reader = new SqlDataReader(finalText, this._conn, behavior);
             reader.SendAndExecuteBatch(StepOption.STEP_NEXT_RECORD);
 
             return reader;
