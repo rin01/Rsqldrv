@@ -668,7 +668,29 @@ namespace Rsqldrv.SqlClient
 
         public override void Close()
         {
-            this.Dispose();
+            // DbDataReader.Dispose(bool disposed) calls this overriding Close().
+            // This means that Close(), and not Dispose(bool disposed), does the real job of closing.
+
+            if (this._disposed)
+                return;
+
+            this._text = "";
+            this._conn = null;
+            this._status = 0;
+            this._colnameList = null;
+            this._colnameMap = null;
+            this._record = null;
+            this._lastRecordCount = 0;
+            this._lastExecRecordCount = 0;
+            this._lastRecordAffectedCount = 0;
+            this._cumulativeExecRecordCount = 0;
+            this._recordsetCount = 0;
+
+            this._messageString = "";
+            this._sqlException = null;
+            this._firstScalarFlag = false;
+            this._firstScalar = null;
+            this._rc = 0;
         }
 
         protected override void Dispose(bool disposing)
@@ -678,26 +700,14 @@ namespace Rsqldrv.SqlClient
 
             if (disposing)
             {
-                this._text = "";
-                this._conn = null;
-                this._status = 0;
-                this._colnameList = null;
-                this._colnameMap = null;
-                this._record = null;
-                this._lastRecordCount = 0;
-                this._lastExecRecordCount = 0;
-                this._lastRecordAffectedCount = 0;
-                this._cumulativeExecRecordCount = 0;
-                this._recordsetCount = 0;
-
-                this._messageString = "";
-                this._sqlException = null;
-                this._firstScalarFlag = false;
-                this._firstScalar = null;
-                this._rc = 0;
+                this.Close(); // Close does the real job
             }
 
-            base.Dispose(disposing); // dispose DbCommand
+            // base:Dispose of DbCommand calls Close !
+            // This is not what it should do, as described in MS document "Implementing a Dispose Method".
+            // That's why we cannot just call Dispose in our own Close method.
+
+            base.Dispose(disposing);
             this._disposed = true;
         }
 
