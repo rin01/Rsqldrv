@@ -41,7 +41,7 @@ namespace Rsqldrv.SqlClient
 
         public override void Rollback()
         {
-            this.executeSingleCommand("ROLLBACK;");
+            this.executeSingleCommand("IF @@TRANCOUNT > 0 ROLLBACK;");
             this._conn._transaction = null;
         }
 
