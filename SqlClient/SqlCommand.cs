@@ -81,9 +81,6 @@ namespace Rsqldrv.SqlClient
                 if (this._disposed)
                     throw new DriverException("SqlCommand: cannot set the connection, as the SqlCommand object has been disposed.");
 
-                if (this._conn != null)
-                    throw new DriverException("SqlCommand: a connection already exists in the SqlCommand object.");                 
-
                 this._conn = value;
             }
         }
