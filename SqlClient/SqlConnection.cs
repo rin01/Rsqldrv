@@ -41,6 +41,8 @@ namespace Rsqldrv.SqlClient
         private BufferOut _buffout; // message to send to the server
         private BufferIn _buffin; // reading stream from the server
 
+        internal SqlTransaction _transaction; // set by BeginTransaction(), set to null by transaction Commit() or Rollback()
+
         private ConnectionState _state = ConnectionState.Closed;
         private bool _disposed = false; // when the connection is disposed, it cannot be reopened any more
 
@@ -145,12 +147,26 @@ namespace Rsqldrv.SqlClient
 
         public new SqlCommand CreateCommand()
         {
-            return new SqlCommand(null, this);
+            return new SqlCommand(null, this); // doesn't associate a transaction, even if a transaction has begun
         }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
             throw new DriverException("SqlConnection: BeginDbTransaction method is not supported.");
+        }
+
+        public new SqlTransaction BeginTransaction()
+        {
+            return this.BeginTransaction("dummyName");
+        }
+
+        public SqlTransaction BeginTransaction(string transactionName)
+        {
+            SqlTransaction tran = new SqlTransaction(this);
+
+            tran.BeginTran();
+
+            return tran;
         }
 
         protected override void Dispose(bool disposing)
@@ -196,6 +212,8 @@ namespace Rsqldrv.SqlClient
                 this._timer.Close(); // Close() calls Dispose()
                 this._timer = null;
             }
+
+            this._transaction = null;
         }
 
         //===== helper methods =====

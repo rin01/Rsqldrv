@@ -24,20 +24,27 @@ namespace Rsqldrv.SqlClient
 
         private SqlParameterCollection _paramColl; // collection of parameters. It should only be accessed through Parameters property, which creates it if needed.
 
+        private SqlTransaction _transaction;
+
         private bool _disposed;
 
         //===== constructors =====
 
         public SqlCommand() { }
 
-        public SqlCommand(string sqlText) : this(sqlText, null)
+        public SqlCommand(string sqlText) : this(sqlText, null, null)
         {
         }
 
-        public SqlCommand(string sqlText, SqlConnection conn)
+        public SqlCommand(string sqlText, SqlConnection conn) : this(sqlText, conn, null)
+        {
+        }
+
+        public SqlCommand(string sqlText, SqlConnection conn, SqlTransaction transaction)
         {
             this._text = sqlText;
             this._conn = conn;
+            this._transaction = transaction;
         }
 
         //===== API properties =====
@@ -92,6 +99,8 @@ namespace Rsqldrv.SqlClient
             }
         }
 
+        public new SqlTransaction Transaction { get { return this._transaction; } set { this._transaction = value; } }
+
         //===== API methods =====
 
         public new SqlParameter CreateParameter()
@@ -116,6 +125,8 @@ namespace Rsqldrv.SqlClient
             int result = 0;
             SqlDataReader reader = null;
             string finalText = this.Parameters.GetAllDECLAREstring() + this._text;
+
+            checkTransactionCoherencyForExecute();
 
             try
             {
@@ -144,6 +155,8 @@ namespace Rsqldrv.SqlClient
             SqlDataReader reader = null;
             string finalText = this.Parameters.GetAllDECLAREstring() + this._text;
 
+            checkTransactionCoherencyForExecute();
+
             try
             {
                 reader = new SqlDataReader(finalText, this._conn, CommandBehavior.Default);
@@ -171,6 +184,8 @@ namespace Rsqldrv.SqlClient
         {
             if (behavior != CommandBehavior.CloseConnection && behavior != CommandBehavior.Default)
                 throw new DriverException("SqlCommand: only argument CommandBehavior.CloseConnection or CommandBehavior.Default can be passed to ExecuteReader() method.");
+
+            checkTransactionCoherencyForExecute();
 
             SqlDataReader reader = null;
             string finalText = this.Parameters.GetAllDECLAREstring() + this._text;
@@ -205,6 +220,7 @@ namespace Rsqldrv.SqlClient
                 this._text = "";
                 this._conn = null;
                 this._paramColl = null;
+                this._transaction = null;
             }
 
             base.Dispose(disposing); // dispose DbCommand
@@ -255,6 +271,23 @@ namespace Rsqldrv.SqlClient
         object ICloneable.Clone()
         {
             throw new DriverException("SqlCommand: Clone method is not supported.");
+        }
+
+        //===== helper functions =====
+
+        private void checkTransactionCoherencyForExecute()
+        {
+            if (this._conn == null)
+                throw new DriverException("SqlCommand: cannot execute command on a null connection.");
+
+            if (this._conn._transaction == null && this._transaction != null)
+                throw new DriverException("SqlCommand: a transaction exists on the command, but connection has no transaction.");
+
+            if (this._conn._transaction != null && this._transaction == null)
+                throw new DriverException("SqlCommand: no transaction exists on the command, but connection has a pending transaction.");
+
+            if (this._conn._transaction != this._transaction)
+                throw new DriverException("SqlCommand: current transaction on the command and connection are not the same.");
         }
 
     }
