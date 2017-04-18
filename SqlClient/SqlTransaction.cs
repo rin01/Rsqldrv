@@ -69,6 +69,12 @@ namespace Rsqldrv.SqlClient
         {
             SqlDataReader reader = null;
 
+            if (this._conn == null)
+                throw new DriverException("SqlTransaction: cannot execute command on a null connection.");
+
+            if (this._conn.isDisposed)
+                throw new DriverException("SqlTransaction: cannot execute command on a closed connection.");
+
             try
             {
                 reader = new SqlDataReader(text, this._conn, CommandBehavior.Default);

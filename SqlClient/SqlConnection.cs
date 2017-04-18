@@ -67,6 +67,8 @@ namespace Rsqldrv.SqlClient
 
         internal BufferIn buffin { get { return this._buffin; } }
 
+        internal bool isDisposed { get { return this._disposed; } }
+
         public override string ConnectionString
         {
             get { return this._connString; }
@@ -180,7 +182,28 @@ namespace Rsqldrv.SqlClient
 
             if (disposing)
             {
-                this.Close(); // Close does the real job
+                this._connString = "";
+
+                if (this._tcpClient != null)
+                {
+                    this._tcpClient.Close(); // TcpClient.Close() just calls TcpClient.Dispose(). TcpClient.Dispose() closes the internal socket too.
+                    this._tcpClient = null;
+                }
+                this._socket = null;
+
+                this._sendLock = null;
+                this._buffout = null;
+                this._buffin = null;
+                this._state = ConnectionState.Broken;
+
+                if (this._timer != null)
+                {
+                    this._timer.Stop();
+                    this._timer.Close(); // Close() calls Dispose()
+                    this._timer = null;
+                }
+
+                this._transaction = null;
             }
 
             base.Dispose(disposing); // dispose DBConnection and Component
@@ -192,28 +215,7 @@ namespace Rsqldrv.SqlClient
             if (this._disposed)
                 return;
 
-            this._connString = "";
-
-            if (this._tcpClient != null)
-            {
-                this._tcpClient.Close(); // TcpClient.Close() just calls TcpClient.Dispose(). TcpClient.Dispose() closes the internal socket too.
-                this._tcpClient = null;
-            }
-            this._socket = null;
-
-            this._sendLock = null;
-            this._buffout = null;
-            this._buffin = null;
-            this._state = ConnectionState.Broken;
-
-            if (this._timer != null)
-            {
-                this._timer.Stop();
-                this._timer.Close(); // Close() calls Dispose()
-                this._timer = null;
-            }
-
-            this._transaction = null;
+            this.Dispose(true);
         }
 
         //===== helper methods =====

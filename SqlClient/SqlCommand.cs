@@ -277,6 +277,9 @@ namespace Rsqldrv.SqlClient
             if (this._conn == null)
                 throw new DriverException("SqlCommand: cannot execute command on a null connection.");
 
+            if (this._conn.isDisposed)
+                throw new DriverException("SqlCommand: cannot execute command on a closed connection.");
+
             if (this._conn._transaction == null && this._transaction != null)
                 throw new DriverException("SqlCommand: a transaction exists on the command, but connection has no transaction.");
 
