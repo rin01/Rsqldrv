@@ -71,6 +71,12 @@ namespace Rsqldrv.SqlClient
             set { throw new DriverException("SqlParameter: SourceColumnNullMapping property is not supported."); }
         }
 
+        public override DataRowVersion SourceVersion
+        {
+            get { throw new DriverException("SqlParameter: SourceVersion property is not supported."); }
+            set { throw new DriverException("SqlParameter: SourceVersion property is not supported."); }
+        }
+
         public SqlDbType SqlDbType
         {
             get { return this._sqlDbType; }

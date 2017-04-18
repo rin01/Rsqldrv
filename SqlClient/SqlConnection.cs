@@ -196,7 +196,7 @@ namespace Rsqldrv.SqlClient
 
             if (this._tcpClient != null)
             {
-                this._tcpClient.Dispose(); // TcpClient.Close() just calls TcpClient.Dispose(). TcpClient.Dispose() closes the internal socket too.
+                this._tcpClient.Close(); // TcpClient.Close() just calls TcpClient.Dispose(). TcpClient.Dispose() closes the internal socket too.
                 this._tcpClient = null;
             }
             this._socket = null;
