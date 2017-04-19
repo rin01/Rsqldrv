@@ -418,7 +418,7 @@ namespace Rsqldrv.SqlClient
             }
         }
 
-        public override bool HasRows { get { throw new DriverException("SqlDataReader: property HasRows is not implemented."); } }
+        public override bool HasRows { get { throw new DriverException("SqlDataReader: property HasRows is not supported."); } }
 
         public override bool IsClosed { get { return this._conn == null; } }
 
@@ -452,7 +452,7 @@ namespace Rsqldrv.SqlClient
 
         public override System.Collections.IEnumerator GetEnumerator()
         {
-            return this._record.GetEnumerator();
+            while (this.Read()) yield return this;
         }
 
         public override string GetName(int i)
@@ -467,24 +467,24 @@ namespace Rsqldrv.SqlClient
 
         public override DataTable GetSchemaTable()
         {
-            throw new DriverException("SqlDataReader: method GetSchemaTable is not implemented.");
+            throw new DriverException("SqlDataReader: method GetSchemaTable is not supported.");
         }
 
         //===== implementation of methods that returns field values as System .Net types =====
 
         public override char GetChar(int i)
         {
-            throw new DriverException("SqlDataReader: method GetChar is not implemented.");
+            throw new DriverException("SqlDataReader: method GetChar is not supported.");
         }
 
         public override long GetBytes(int i, long dataIndex, byte[] buffer, int bufferIndex, int length)
         {
-            throw new DriverException("SqlDataReader: method GetBytes is not implemented. Use (byte[])myreader[i] instead.");
+            throw new DriverException("SqlDataReader: method GetBytes is not supported. Use (byte[])myreader[i] instead.");
         }
 
         public override long GetChars(int i, long dataIndex, char[] buffer, int bufferIndex, int length)
         {
-            throw new DriverException("SqlDataReader: method GetChars is not implemented.");
+            throw new DriverException("SqlDataReader: method GetChars is not supported.");
         }
 
         public override string GetString(int i)
@@ -544,12 +544,12 @@ namespace Rsqldrv.SqlClient
 
         public virtual DateTimeOffset GetDateTimeOffset(int i)
         {
-            throw new DriverException("SqlDataReader: method DateTimeOffset is not implemented.");
+            throw new DriverException("SqlDataReader: method DateTimeOffset is not supported.");
         }
 
         public override Guid GetGuid(int i)
         {
-            throw new DriverException("SqlDataReader: method GetGuid is not implemented.");
+            throw new DriverException("SqlDataReader: method GetGuid is not supported.");
         }
 
         public override object GetValue(int i)
@@ -586,7 +586,7 @@ namespace Rsqldrv.SqlClient
 
         public virtual SqlBytes GetSqlBytes(int i)
         {
-            throw new DriverException("SqlDataReader: method GetSqlBytes is not implemented.");
+            throw new DriverException("SqlDataReader: method GetSqlBytes is not supported.");
         }
 
         public virtual SqlBinary GetSqlBinary(int i)
@@ -596,7 +596,7 @@ namespace Rsqldrv.SqlClient
 
         public virtual SqlChars GetSqlChars(int i)
         {
-            throw new DriverException("SqlDataReader: method GetSqlChars is not implemented.");
+            throw new DriverException("SqlDataReader: method GetSqlChars is not supported.");
         }
 
         public virtual SqlString GetSqlString(int i)
@@ -656,7 +656,7 @@ namespace Rsqldrv.SqlClient
 
         public virtual SqlGuid GetSqlGuid(int i)
         {
-            throw new DriverException("SqlDataReader: method GetSqlGuid is not implemented.");
+            throw new DriverException("SqlDataReader: method GetSqlGuid is not supported.");
         }
 
         public virtual object GetSqlValue(int i)
