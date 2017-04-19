@@ -1,17 +1,34 @@
 Rsqldrv is the C&#35; driver to communicate with RSQL database server (http://rsql.ch).
 
+The driver source code is free software (Apache license).
+
+
+### Driver Description
+
 This driver contains the SqlConnection, SqlCommand, SqlDataReader, SqlParameter and SqlTransaction objects.
 
 They are used the same way as the driver for MS SQL driver.
 
+You can read the Microsoft documentation about these objects, as they implement all needed methods and properties (e.g. SqlConnection: https://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqlconnection(v=vs.110).aspx))
+
+Methods for asynchronous programming are not implemented, though.
+
+
+### Installation
+
+To install the driver for RSQL:
+- Download the library dll from http://rsql.ch/guide/download_page/.
+- Install the dll file in a `lib` (or any other name) directory under your project directory.
+- In the "Project/Add Reference" menu of Visual Studio, add this library.
+
+
+### Sample Program
+
 Below is a sample program that inserts records into a table and reads them.
-- The line `using System.Data.SqlClient;` is used if you want to use the driver for MS SQL Server.
+- The line `using System.Data.SqlClient;` references the driver for MS SQL Server.
 - To use the driver for RSQL, just replace it by the line `using Rsqldrv.SqlClient;`, as in the code below.
 
 You can develop your application on RSQL, and if you want to switch to and from MS SQL Server, you just need to change the `using` line.
-
-Download the library dll from http://localhost:1313/guide/download_page/.
-
 
 
 ```C#
