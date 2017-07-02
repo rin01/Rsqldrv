@@ -30,6 +30,16 @@ Below is a sample program that inserts records into a table and reads them.
 
 You can develop your application on RSQL, and if you want to switch to and from MS SQL Server, you just need to change the `using` line.
 
+Before running this program, please create a `mytest` database and the `mytable` table by running the following statements in the `rcli` client program:
+
+    create database mytest
+    GO
+
+    create table mytest..mytable (id int not null primary key, name varchar(100) null)
+
+
+This sample program inserts a few records in the `mytable` table and reads them.
+
 
 ```C#
 using System;
