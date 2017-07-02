@@ -24,6 +24,14 @@ namespace Rsqldrv.Msgp
             this._buff.Clear();
         }
 
+        internal int SizeOfStringInBytes(string s)
+        {
+            byte[] bytes = this._utf8encoder.GetBytes(s);
+            int sz = bytes.Length;
+
+            return sz;
+        }
+
         // copies the content of the buffer in a new byte array and returns it.
         internal byte[] ToByteArray()
         {

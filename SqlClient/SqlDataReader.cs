@@ -67,6 +67,13 @@ namespace Rsqldrv.SqlClient
         //    execute until end of batch or error received (status == BATCH_END).
         internal void SendAndExecuteBatch(StepOption stepOption)
         {
+            // check string length in bytes
+
+            int sz = this._conn.buffout.SizeOfStringInBytes(this._text);
+
+            if (sz > this._conn.batchTextMaxSize)
+                throw new DriverException(String.Format("SqlDataReader: batch size in bytes is {0}, max size allowed is {1}.", sz, this._conn.batchTextMaxSize));
+
             // send the batch to the server
 
             this._conn.buffout.Reset();

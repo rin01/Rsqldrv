@@ -46,6 +46,10 @@ namespace Rsqldrv.SqlClient
         private ConnectionState _state = ConnectionState.Closed;
         private bool _disposed = false; // when the connection is disposed, it cannot be reopened any more
 
+        private string _serverVersionString;  // this information comes from the server after authentication has succeeded
+        private long _serverBatchTextMaxSize; //  same
+        private long _serverReadTimeout;      //  same
+
         //===== constructors =====
 
         public SqlConnection()
@@ -69,6 +73,8 @@ namespace Rsqldrv.SqlClient
 
         internal bool isDisposed { get { return this._disposed; } }
 
+        internal long batchTextMaxSize { get { return this._serverBatchTextMaxSize;  } }
+
         public override string ConnectionString
         {
             get { return this._connString; }
@@ -81,7 +87,7 @@ namespace Rsqldrv.SqlClient
 
         public override string DataSource { get { return String.Format("{0}:{1}", this._serverAddr, this._serverPort); } }
 
-        public override string ServerVersion { get { return "version unknown"; } }
+        public override string ServerVersion { get { return this._serverVersionString; } }
 
         public override ConnectionState State { get { return this._state; } }
 
@@ -127,7 +133,32 @@ namespace Rsqldrv.SqlClient
             uint responseType = this._buffin.ReadUint();
 
             if (responseType != ResType.LOGIN_SUCCESS)
-                throw new DriverException("SqlConnection: login failed");
+                throw new DriverException("SqlConnection: login failed.");
+
+            //--- read server info ---
+
+            int sz = this._buffin.ReadMapHeader(); // each datatype information is contained in a map
+
+            for (int i = 0; i < sz; i++)
+            {
+                string item_name = this._buffin.ReadString(); // read name of item
+
+                switch (item_name)
+                {
+                    case "server_version_string":
+                        this._serverVersionString = this._buffin.ReadString();
+                        break;
+                    case "server_batch_text_max_size":
+                        this._serverBatchTextMaxSize = this._buffin.ReadLong();
+                        break;
+                    case "server_read_timeout":
+                        this._serverReadTimeout = this._buffin.ReadLong();
+                        break;
+                    default:
+                        throw new DriverException(String.Format("SqlConnection: unknown server info \"{0}\" key has been received.", item_name));
+                }
+            }
+
         }
 
         public override void ChangeDatabase(string database)
