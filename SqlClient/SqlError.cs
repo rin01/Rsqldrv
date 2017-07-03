@@ -131,6 +131,9 @@ namespace Rsqldrv.SqlClient
                     case "line_pos":
                         sqlError._linePos = buffin.ReadLong();
                         break;
+
+                    default:
+                        throw new DriverException(String.Format("SqlError: unknown error key \"{0}\" has been received.", key));
                 }
             }
 
