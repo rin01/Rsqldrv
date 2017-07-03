@@ -24,10 +24,10 @@ namespace Rsqldrv.Msgp
             this._buff.Clear();
         }
 
-        internal int SizeOfStringInBytes(string s)
+        // returns the number of bytes used by the string, encoded in utf-8.
+        internal int GetByteCount(string s)
         {
-            byte[] bytes = this._utf8encoder.GetBytes(s);
-            int sz = bytes.Length;
+            int sz = this._utf8encoder.GetByteCount(s);
 
             return sz;
         }
